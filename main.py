@@ -14,9 +14,9 @@ class GUI:
                         background="blanchedalmond")
         self.canvas.pack()
 
-        self.paddle_1 = Paddle("blue", self.canvas)
-        self.paddle_2 = Paddle("red", self.canvas)
-        self.ball = Ball(self.canvas, "white")
+        self.paddle_1 = Paddle("blue", self.canvas, 1)
+        self.paddle_2 = Paddle("red", self.canvas, 2)
+        self.ball = Ball(self.canvas, "white", self.paddle_1, self.paddle_2)
         self.after_call = None
         start_button = Button(self.window, text="start", command=self.move)
         start_button.pack()
@@ -43,10 +43,14 @@ class GUI:
 
 class Paddle:
     """Paddle class"""
-    def __init__(self, color, canvas):
+    def __init__(self, color, canvas, index):
         self.colour = color
+        self.paddle_index = index
         self.canvas = canvas
-        self.paddle_id = self.canvas.create_rectangle() # DOO THIS
+        if index == 1:
+            self.paddle_id = self.canvas.create_rectangle(50, 250, 75, 50, fill = self.colour) # DOO THIS
+        else:
+            self.paddle_id = self.canvas.create_rectangle(775, 250, 800, 50, fill=self.colour)
         self.vel_y = 0
 
 
@@ -57,9 +61,10 @@ class Paddle:
     # collides with ball
 class Ball:
     """Ball class"""
-    def __init__(self, canvas, color):
+    def __init__(self, canvas, color, paddle1, paddle2):
         self.vel_X = 5
         self.vel_y = 5
+        self.paddles = [paddle1,paddle2]
         self.hit_count = 0
         self.canvas = canvas
         self.ball_id = canvas.create_oval(0,0,30,30, fill = color)
@@ -71,14 +76,22 @@ class Ball:
             self.hit_count += 1
 
     def move_ball(self):
-        print("moving")
         if self.canvas.coords(self.ball_id)[2] > GUI.CANVAS_WIDTH or self.canvas.coords(self.ball_id)[0] < 0:
             self.collision()
             self.vel_X = -self.vel_X
         if self.canvas.coords(self.ball_id)[3] > 600 or self.canvas.coords(self.ball_id)[1] < 0:
             self.vel_y = -self.vel_y
             self.collision()
+        for paddle in self.paddles:
+            x1, y1, x2, y2 = self.canvas.coords(paddle.paddle_id)
+            if self.canvas.find_overlapping(x1, y1, x2, y2):
+                print(self.canvas.find_overlapping(x1, y1, x2, y2))
+                if len(self.canvas.find_overlapping(x1, y1, x2, y2)) >= 2:
+                    self.vel_X = -self.vel_X
+
+
 
         self.canvas.move(self.ball_id, self.vel_X * self.hit_count, self.vel_y)
+        print(self.vel_X)
 
 GUI()
