@@ -1,6 +1,8 @@
 from tkinter import *
 import time
 import random
+#from pynput import keyword
+#from pynput.keyboard import key
 
 class GUI:
     """GUI class handles a lot of the other classes"""\
@@ -14,25 +16,34 @@ class GUI:
                         background="blanchedalmond")
         self.canvas.pack()
 
-        self.paddle_1 = Paddle("blue", self.canvas, 1)
-        self.paddle_2 = Paddle("red", self.canvas, 2)
+        self.paddle_1 = Paddle("blue", self.canvas, 1, self.window)
+        self.paddle_2 = Paddle("red", self.canvas, 2, self.window)
         self.ball = Ball(self.canvas, "white", self.paddle_1, self.paddle_2)
+
         self.after_call = None
         start_button = Button(self.window, text="start", command=self.move)
         start_button.pack()
 
+        self.window.bind("<KeyPress>", self.bob)
+
+
         self.window.mainloop()
+
+
+    def bob(self, event):
+        self.paddle_1.Up()
+        print(event)
 
 
     def move(self):
         #Using after call constantly updates the movement of all objects
         #Does not directly manipulate the object
         self.ball.move_ball()
+        self.paddle_2.move()
+        self.paddle_1.move()
 
         self.after_call = self.window.after(16, self.move)
 
-
-        pass
 
     def collsion(self):
         #Detects the collision between the paddle and the ball and
@@ -41,22 +52,33 @@ class GUI:
 
 
 
+
+
+
 class Paddle:
     """Paddle class"""
-    def __init__(self, color, canvas, index):
+    def __init__(self, color, canvas, index, window):
         self.colour = color
         self.paddle_index = index
         self.canvas = canvas
-        if index == 1:
-            self.paddle_id = self.canvas.create_rectangle(50, 250, 75, 50, fill = self.colour) # DOO THIS
-        else:
-            self.paddle_id = self.canvas.create_rectangle(775, 250, 800, 50, fill=self.colour)
         self.vel_y = 0
+        #self.up = window.bind("<KeyPress>", PaddleController())
+        if index == 1:
+            self.paddle_id = self.canvas.create_rectangle(50, 250, 75, 100, fill = self.colour) # DOO THIS
+        else:
+            self.paddle_id = self.canvas.create_rectangle(1150, 250, 1175, 100, fill=self.colour)
+
+    def Up(self):
+        print("Up")
+        self.vel_y = -5
 
 
-    def move(self, y):
+
+    def move(self):
+        if self.canvas.coords(self.paddle_id)[3] > 600 or self.canvas.coords(self.paddle_id)[1] < 0:
+            self.vel_y = 0
         self.canvas.move(self.paddle_id, 0, self.vel_y)
-        pass
+        self.vel_y = 0
 
     # collides with ball
 class Ball:
@@ -67,7 +89,7 @@ class Ball:
         self.paddles = [paddle1,paddle2]
         self.hit_count = 0
         self.canvas = canvas
-        self.ball_id = canvas.create_oval(0,0,30,30, fill = color)
+        self.ball_id = canvas.create_oval(0,0,15,15, fill = color)
         self.canvas.move(self.ball_id, GUI.CANVAS_WIDTH/2, GUI.CANVAS_LENGTH/2)
 
 
