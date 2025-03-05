@@ -3,8 +3,8 @@ import time
 import random
 #from pynput import keyword
 #from pynput.keyboard import key
-class GUI:
-    """GUI class handles a lot of the other classes"""\
+class gui:
+    """gui class handles a lot of the other classes"""\
 
     CANVAS_LENGTH = 600
     CANVAS_WIDTH = 1200
@@ -98,7 +98,7 @@ class GUI:
 
 
 class Paddle:
-    """Paddle class"""
+    """Paddle class/Constructor"""
     def __init__(self, color, canvas, index, window):
         self.colour = color
         self.paddle_index = index
@@ -133,16 +133,16 @@ class Paddle:
 
     # collides with ball
 class Ball:
-    """Ball class"""
-    def __init__(self, canvas, color, paddle1, paddle2, GUI):
+    """Ball class/ Constructor"""
+    def __init__(self, canvas, color, paddle1, paddle2, gui):
         self.vel_X = 5
         self.vel_y = 5
         self.paddles = [paddle1,paddle2]
         self.hit_count = 0
         self.canvas = canvas
         self.ball_id = canvas.create_oval(0,0,15,15, fill = color)
-        self.canvas.move(self.ball_id, GUI.CANVAS_WIDTH/2, GUI.CANVAS_LENGTH/2)
-        self.GUI = GUI
+        self.canvas.move(self.ball_id, gui.CANVAS_WIDTH/2, gui.CANVAS_LENGTH/2)
+        self.gui = gui
 
 
     def collision(self):
@@ -151,13 +151,13 @@ class Ball:
 
 
     def score(self, index):
-        self.GUI.score(index, self.ball_id)
-        self.GUI.stop_movement()
+        self.gui.score(index, self.ball_id)
+        self.gui.stop_movement()
         self.hit_count = 0
 
 
     def move_ball(self):
-        if self.canvas.coords(self.ball_id)[2] > GUI.CANVAS_WIDTH:
+        if self.canvas.coords(self.ball_id)[2] > gui.CANVAS_WIDTH:
             self.score(0)
         if self.canvas.coords(self.ball_id)[0] < 0:
             self.score(1)
@@ -176,4 +176,4 @@ class Ball:
 
         self.canvas.move(self.ball_id, self.vel_X * self.hit_count, self.vel_y)
 
-GUI()
+gui()
