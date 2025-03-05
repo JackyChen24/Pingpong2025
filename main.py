@@ -95,6 +95,13 @@ class gui:
 
 
 
+class label:
+    def __init__(self):
+        self.text = None
+
+
+    def update(self):
+        pass
 
 
 
