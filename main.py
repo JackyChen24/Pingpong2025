@@ -48,6 +48,7 @@ class gui:
         else:
             self._score_two +=1
         self.canvas.moveto(ball, 600, 450)
+        print(f"(player one score {self._score_one} player two score {self._score_two})")
 
 
 
@@ -154,6 +155,7 @@ class Ball:
         self.gui.score(index, self.ball_id)
         self.gui.stop_movement()
         self.hit_count = 0
+
 
 
     def move_ball(self):
