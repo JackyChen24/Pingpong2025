@@ -3,7 +3,6 @@ import time
 import random
 #from pynput import keyword
 #from pynput.keyboard import key
-
 class GUI:
     """GUI class handles a lot of the other classes"""\
 
@@ -24,6 +23,13 @@ class GUI:
         self._ball = Ball(self.canvas, "white", self._paddle_1, self._paddle_2, self)
         self.input_list  = set()
 
+        self.player_one_up = "w"
+        self.player_one_down = "s"
+
+
+        self.player_two_up = "up"
+        self.player_two_down = "down"
+
         self.after_call = None
         self.move()
         start_button = Button(self.window, text="start", command=self.start_movement)
@@ -41,43 +47,29 @@ class GUI:
             self._score_one += 1
         else:
             self._score_two +=1
-        self.canvas.moveto(ball, GUI.CANVAS_LENGTH/2, 450)
+        self.canvas.moveto(ball, 600, 450)
 
 
 
     def event(self, event):
         key_pressed = event
-        self.input_list.add(key_pressed.keysym)
-        #player one
-
-        print(self.input_list)
+        self.input_list.add(key_pressed.keysym.lower())
 
     def event_released(self, event):
         key_pressed = event
-        self.input_list.remove(key_pressed.keysym)
-        #player one
-        if key_pressed.keysym == "w":
-            self._paddle_1.up()
-        if key_pressed.keysym == "s":
-            self._paddle_1.down()
-        #player two
-        if key_pressed.keysym == "Up":
-            self._paddle_2.up()
-        if key_pressed.keysym == "Down":
-            self._paddle_2.down()
-        print(self.input_list)
+        self.input_list.remove(key_pressed.keysym.lower())
 
 
     def move(self):
         for word in self.input_list:
-            if word == "w":
+            if word == self.player_one_up:
                 self._paddle_1.up()
-            if word == "s":
+            if word == self.player_one_down:
                 self._paddle_1.down()
             # player two
-            if word.keysym == "Up":
+            if word == self.player_two_up:
                 self._paddle_2.up()
-            if word.keysym == "Down":
+            if word == self.player_two_down:
                 self._paddle_2.down()
         #Using after call constantly updates the movement of all objects
         #Does not directly manipulate the object
@@ -112,24 +104,30 @@ class Paddle:
         self.paddle_index = index
         self.canvas = canvas
         self.vel_y = 0
+        self.movementspeed = 20
         #self.up = window.bind("<KeyPress>", PaddleController())
         if index == 1:
-            self.paddle_id = self.canvas.create_rectangle(50, 250, 75, 100, fill = self.colour) # DOO THIS
+            self.paddle_id = self.canvas.create_rectangle(50, 250, 55, 100, fill = self.colour) # DOO THIS
         else:
-            self.paddle_id = self.canvas.create_rectangle(1150, 250, 1175, 100, fill=self.colour)
+            self.paddle_id = self.canvas.create_rectangle(1150, 250, 1155, 100, fill=self.colour)
 
     def up(self):
-        self.vel_y = -20
+        self.vel_y = -self.movementspeed
 
 
     def down(self):
-        self.vel_y = 20
+        self.vel_y = self.movementspeed
 
 
 
     def move(self):
-        if self.canvas.coords(self.paddle_id)[3] > 600 or self.canvas.coords(self.paddle_id)[1] < 0:
-            self.vel_y = 0
+        if self.canvas.coords(self.paddle_id)[3] > 600:
+            if self.vel_y == self.movementspeed:
+                self.vel_y = 0
+        if self.canvas.coords(self.paddle_id)[1] < 0:
+            if self.vel_y == -self.movementspeed:
+                self.vel_y = 0
+
         self.canvas.move(self.paddle_id, 0, self.vel_y)
         self.vel_y = 0
 
