@@ -4,8 +4,9 @@ import random
 #from pynput import keyword
 #from pynput.keyboard import key
 class gui:
-    """gui class handles a lot of the other classes"""\
-
+    """gui class handles a lot of the other classes"""
+    PLAYER1_ID = 1
+    PLAYER2_ID = 2
     CANVAS_LENGTH = 600
     CANVAS_WIDTH = 1200
     def __init__(self):
@@ -15,15 +16,16 @@ class gui:
                         background="blanchedalmond")
         self.canvas.pack()
 
-        self._paddle_1 = Paddle("blue", self.canvas, 1, self.window)
-        self._paddle_2 = Paddle("red", self.canvas, 2, self.window)
+        self._paddle_1 = Paddle("blue", self.canvas, self.PLAYER1_ID, self.window)
+        self._paddle_2 = Paddle("red", self.canvas, self.PLAYER2_ID, self.window)
         self._score_one = 0
         self._score_two = 0
         self.is_moving = False
         self._ball = Ball(self.canvas, "white", self._paddle_1, self._paddle_2, self)
         self.input_list  = set()
         self.labels = []
-        self.labels.append(Label("hiiii"))
+        self.labels.append(TextDisplay(self._score_one, self.window, 0, self))
+        self.labels.append(TextDisplay(self._score_two, self.window, 1, self))
 
         self.player_one_up = "w"
         self.player_one_down = "s"
@@ -37,6 +39,8 @@ class gui:
         start_button = Button(self.window, text="start", command=self.start_movement)
         start_button.pack()
 
+        for i in self.labels:
+            i.score_label.pack()
         self.window.bind("<KeyPress>", self.event)
         self.window.bind("<KeyRelease>", self.event_released)
 
@@ -45,13 +49,22 @@ class gui:
 
 
     def score(self,player,ball):
-        if player == 0:
+        if player == gui.PLAYER2_ID:
             self._score_one += 1
         else:
             self._score_two +=1
         self.canvas.moveto(ball, 600, 450)
+        for i in self.labels:
+            i.update()
+            print("update")
         print(f"(player one score {self._score_one} player two score {self._score_two})")
 
+
+    def get_score(self, index):
+        if index == gui.PLAYER1_ID:
+            return self._score_one
+        else:
+            return self._score_two
 
 
     def event(self, event):
@@ -81,12 +94,6 @@ class gui:
             self._paddle_2.move()
             self._paddle_1.move()
 
-        for i in self.labels:
-            i.update()
-
-
-
-
         self.after_call = self.window.after(16, self.update_step)
 
     def stop_movement(self):
@@ -102,13 +109,23 @@ class gui:
 
 
 
-class Label:
-    def __init__(self, text):
-        self.text = None
+class TextDisplay:
+    def __init__(self, text, window, index, gui):
+        self.text = text
+
+        self.index = index
+        self.window = window
+        self.gui = gui
+
+        self.score_label = Label(self.window,
+                                  text=self.text,
+                                  anchor=CENTER,
+                                  )
 
 
     def update(self):
-        print("Testing the labels updating functions")
+        self.score_label.config(text=self.gui.get_score(self.index))
+        pass
 
 
 
@@ -174,9 +191,9 @@ class Ball:
 
     def move_ball(self):
         if self.canvas.coords(self.ball_id)[2] > gui.CANVAS_WIDTH:
-            self.score(0)
+            self.score(gui.PLAYER1_ID)
         if self.canvas.coords(self.ball_id)[0] < 0:
-            self.score(1)
+            self.score(gui.PLAYER2_ID)
 
 
         if self.canvas.coords(self.ball_id)[3] > 600 or self.canvas.coords(self.ball_id)[1] < 0:
