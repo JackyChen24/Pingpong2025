@@ -19,9 +19,11 @@ class gui:
         self._paddle_2 = Paddle("red", self.canvas, 2, self.window)
         self._score_one = 0
         self._score_two = 0
-        self.bob = False
+        self.is_moving = False
         self._ball = Ball(self.canvas, "white", self._paddle_1, self._paddle_2, self)
         self.input_list  = set()
+        self.labels = []
+        self.labels.append(Label("hiiii"))
 
         self.player_one_up = "w"
         self.player_one_down = "s"
@@ -31,7 +33,7 @@ class gui:
         self.player_two_down = "down"
 
         self.after_call = None
-        self.move()
+        self.update_step()
         start_button = Button(self.window, text="start", command=self.start_movement)
         start_button.pack()
 
@@ -61,7 +63,7 @@ class gui:
         self.input_list.remove(key_pressed.keysym.lower())
 
 
-    def move(self):
+    def update_step(self):
         for word in self.input_list:
             if word == self.player_one_up:
                 self._paddle_1.up()
@@ -74,19 +76,24 @@ class gui:
                 self._paddle_2.down()
         #Using after call constantly updates the movement of all objects
         #Does not directly manipulate the object
-        if self.bob:
+        if self.is_moving:
             self._ball.move_ball()
             self._paddle_2.move()
             self._paddle_1.move()
 
+        for i in self.labels:
+            i.update()
 
-        self.after_call = self.window.after(16, self.move)
+
+
+
+        self.after_call = self.window.after(16, self.update_step)
 
     def stop_movement(self):
-        self.bob = False
+        self.is_moving = False
 
     def start_movement(self):
-        self.bob = True
+        self.is_moving = True
 
     def collsion(self):
         #Detects the collision between the paddle and the ball and
@@ -95,13 +102,13 @@ class gui:
 
 
 
-class label:
-    def __init__(self):
+class Label:
+    def __init__(self, text):
         self.text = None
 
 
     def update(self):
-        pass
+        print("Testing the labels updating functions")
 
 
 
@@ -112,7 +119,7 @@ class Paddle:
         self.paddle_index = index
         self.canvas = canvas
         self.vel_y = 0
-        self.movementspeed = 20
+        self.movement_speed = 20
         #self.up = window.bind("<KeyPress>", PaddleController())
         if index == 1:
             self.paddle_id = self.canvas.create_rectangle(50, 250, 55, 100, fill = self.colour) # DOO THIS
@@ -120,20 +127,20 @@ class Paddle:
             self.paddle_id = self.canvas.create_rectangle(1150, 250, 1155, 100, fill=self.colour)
 
     def up(self):
-        self.vel_y = -self.movementspeed
+        self.vel_y = -self.movement_speed
 
 
     def down(self):
-        self.vel_y = self.movementspeed
+        self.vel_y = self.movement_speed
 
 
 
     def move(self):
         if self.canvas.coords(self.paddle_id)[3] > 600:
-            if self.vel_y == self.movementspeed:
+            if self.vel_y == self.movement_speed:
                 self.vel_y = 0
         if self.canvas.coords(self.paddle_id)[1] < 0:
-            if self.vel_y == -self.movementspeed:
+            if self.vel_y == -self.movement_speed:
                 self.vel_y = 0
 
         self.canvas.move(self.paddle_id, 0, self.vel_y)
