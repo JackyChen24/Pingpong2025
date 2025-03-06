@@ -1,23 +1,26 @@
 from tkinter import *
-import time
-import random
-#from pynput import keyword
-#from pynput.keyboard import key
-class gui:
-    """gui class handles a lot of the other classes"""
+
+
+class Gui:
+    """gui class handles a lot of the other classes."""
     PLAYER1_ID = 1
     PLAYER2_ID = 2
     CANVAS_LENGTH = 600
     CANVAS_WIDTH = 1200
+
     def __init__(self):
 
-        self.window = Tk() # toolkit
-        self.canvas = Canvas(self.window, width=f"{self.CANVAS_WIDTH}", height="600",
+
+        self.window = Tk()  # toolkit
+        self.canvas =\
+            Canvas(self.window, width=f"{self.CANVAS_WIDTH}", height="600",
                         background="blanchedalmond")
         self.canvas.pack()
 
-        self._paddle_1 = Paddle("blue", self.canvas, self.PLAYER1_ID, self.window)
-        self._paddle_2 = Paddle("red", self.canvas, self.PLAYER2_ID, self.window)
+        self._paddle_1 = (
+            Paddle("blue", self.canvas, self.PLAYER1_ID, self.window))
+        self._paddle_2 = (
+            Paddle("red", self.canvas, self.PLAYER2_ID, self.window))
         self._score_one = 0
         self._score_two = 0
         self.is_moving = False
@@ -49,7 +52,7 @@ class gui:
 
 
     def score(self,player,ball):
-        if player == gui.PLAYER2_ID:
+        if player == Gui.PLAYER2_ID:
             self._score_one += 1
         else:
             self._score_two +=1
@@ -61,7 +64,7 @@ class gui:
 
 
     def get_score(self, index):
-        if index == gui.PLAYER1_ID:
+        if index == Gui.PLAYER1_ID:
             return self._score_one
         else:
             return self._score_two
@@ -190,10 +193,10 @@ class Ball:
 
 
     def move_ball(self):
-        if self.canvas.coords(self.ball_id)[2] > gui.CANVAS_WIDTH:
-            self.score(gui.PLAYER1_ID)
+        if self.canvas.coords(self.ball_id)[2] > Gui.CANVAS_WIDTH:
+            self.score(Gui.PLAYER1_ID)
         if self.canvas.coords(self.ball_id)[0] < 0:
-            self.score(gui.PLAYER2_ID)
+            self.score(Gui.PLAYER2_ID)
 
 
         if self.canvas.coords(self.ball_id)[3] > 600 or self.canvas.coords(self.ball_id)[1] < 0:
@@ -209,4 +212,4 @@ class Ball:
 
         self.canvas.move(self.ball_id, self.vel_X * self.hit_count, self.vel_y)
 
-gui()
+Gui()
