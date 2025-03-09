@@ -20,7 +20,7 @@ class Gui:
     def __init__(self):
         """Initialize the GUI for the Pong game.
 
-        Attributes:
+        Instance Attributes:
             _player_one_up (str): Keybind for player 1's paddle to move up.
             _player_one_down (str): Keybind for player 1's paddle to move down.
             _player_two_up (str): Keybind for player 2's paddle to move up.
@@ -175,109 +175,182 @@ class Gui:
 
 
 class TextDisplay:
-    def __init__(self, text, window, index, gui):
-        self.text = text
+    """Display the score labels."""
 
-        self.index = index
-        self.window = window
-        self.gui = gui
+    def __init__(self, score, window, player_index, gui):
+        """Initialize the text display for score.
 
-        self.score_label = Label(self.window,
-                                 text=f"Player {self.index}: {self.text}",
+        Parameter:
+            score (str): The score number.
+            window (Tk): The window it will be displayed on.
+            player_index (int): The player's identification number.
+            gui (Gui): The main game GUI instance.
+        """
+        self._score = score
+        self._player_id = player_index
+        self._window = window
+        self._gui = gui
+
+        self.score_label = Label(self._window,
+                                 text=f"Player "
+                                      f"{self._player_id}: "
+                                      f"{self._score}",
                                  anchor=CENTER)
 
     def update(self):
-        self.score_label.config(text=f"Player {self.index}: "
-                                     f"{self.gui.get_score(self.index)}")
-        pass
+        """Update the score label."""
+        self.score_label.config(text=f"Player "
+                                     f"{self._player_id}: "
+                                     f"{self._gui.get_score(self._player_id)}")
 
 
 class Paddle:
-    """Paddle class/Constructor"""
+    """Construct a paddle object for Pong game."""
 
     def __init__(self, color, canvas, index):
-        self.colour = color
-        self.paddle_index = index
-        self.canvas = canvas
-        self.vel_y = 0
-        self.movement_speed = 20
+        """Initialize paddle with color, canvas, and player index.
+
+        Parameter:
+            color (str): The color of the paddle.
+            canvas (Canvas): The canvas where the paddle is drawn.
+            index (int): Player identification number.
+
+        Instance Attribute:
+            vel_y (int): The vertical velocity of the paddle,
+            initially set to 0.
+            movement_speed (int): The speed the paddle moves.
+        """
+        self._colour = color
+        self._paddle_index = index
+        self._canvas = canvas
+        self._vel_y = 0
+        self._movement_speed = 20
         if index == 1:
-            self.paddle_id = self.canvas.create_rectangle(50,
-                                                          250,
-                                                          55,
-                                                          100,
-                                                          fill=self.colour)
+            #  Player 1's paddle spawns on the left.
+            self._paddle_id = self._canvas.create_rectangle(50,
+                                                            250,
+                                                            55,
+                                                            100,
+                                                            fill=self._colour)
         else:
-            self.paddle_id = self.canvas.create_rectangle(1150,
-                                                          250,
-                                                          1155,
-                                                          100,
-                                                          fill=self.colour)
+            #  If not player 1, paddle spawn on the right.
+            self._paddle_id = self._canvas.create_rectangle(1150,
+                                                            250,
+                                                            1155,
+                                                            100,
+                                                            fill=self._colour)
+
+    def get_paddle_id(self):
+        """Return _paddle_id."""
+        return self._paddle_id
 
     def up(self):
-        self.vel_y = -self.movement_speed
+        """Make the paddle go up."""
+        self._vel_y = -self._movement_speed
 
     def down(self):
-        self.vel_y = self.movement_speed
+        """Make the paddle go down."""
+        self._vel_y = self._movement_speed
 
     def move(self):
-        if self.canvas.coords(self.paddle_id)[3] > 600:
-            if self.vel_y == self.movement_speed:
-                self.vel_y = 0
-        if self.canvas.coords(self.paddle_id)[1] < 0:
-            if self.vel_y == -self.movement_speed:
-                self.vel_y = 0
+        """Move the paddle.
 
-        self.canvas.move(self.paddle_id, 0, self.vel_y)
-        self.vel_y = 0
+        Prevents paddle from moving out of canvas boundaries.
+        """
+        if self._canvas.coords(self._paddle_id)[3] > 600:
+            #  If the paddle hits the top boundary of canvas.
+            if self._vel_y == self._movement_speed:
+                self._vel_y = 0
+        if self._canvas.coords(self._paddle_id)[1] < 0:
+            #  If the paddle hits the bottom boundary of canvas.
+            if self._vel_y == -self._movement_speed:
+                self._vel_y = 0
+
+        self._canvas.move(self._paddle_id, 0, self._vel_y)
+        self._vel_y = 0
     # collides with ball
 
 
 class Ball:
-    """Ball class/ Constructor"""
+    """Construct ball object for Pong game."""
 
     def __init__(self, canvas, color, paddle1, paddle2, gui):
-        self.vel_X = 5
-        self.vel_y = 5
-        self.paddles = [paddle1, paddle2]
-        self.hit_count = 0
-        self.canvas = canvas
-        self.ball_id = canvas.create_oval(0,
-                                          0,
-                                          15,
-                                          15,
-                                          fill=color)
-        self.canvas.move(self.ball_id,
-                         gui.CANVAS_WIDTH/2,
-                         gui.CANVAS_LENGTH/2)
-        self.gui = gui
+        """Initialize ball object.
+
+        Parameter:
+            canvas (Canvas): The game canvas where the ball is drawn.
+            color (str): The color of ball.
+            paddle1 (Paddle): The paddle of player 1.
+            paddle2 (Paddle): The paddle of player 2.
+            gui (Gui): The main GUI instance.
+
+        Instance Attribute:
+        _vel_x (int): The horizontal velocity of ball.
+        _vel_y (int): The vertical velocity of ball.
+        _hit_count (int): The amount of times the ball has rebounded.
+        """
+        self._vel_x = 5
+        self._vel_y = 5
+        self._paddles = [paddle1, paddle2]
+        self._hit_count = 0
+        self._canvas = canvas
+        self._gui = gui
+        self._ball_id = canvas.create_oval(0,
+                                           0,
+                                           15,
+                                           15,
+                                           fill=color)
+        self._canvas.move(self._ball_id,
+                          gui.CANVAS_WIDTH / 2,
+                          gui.CANVAS_LENGTH / 2)
 
     def collision(self):
-        if self.hit_count < 4:
-            self.hit_count += 1
+        """Increases _hit_count (int) when collision occur.
+
+        When _hit_count reaches 4,
+        _hit_count stops increasing.
+        """
+        if self._hit_count < 4:
+            self._hit_count += 1
 
     def score(self, index):
-        self.gui.score(index, self.ball_id)
-        self.gui.stop_movement()
-        self.hit_count = 0
+        """Update score when ball goes out of bounds.
+
+        Once it goes out of bounds,
+        call score function to update score,
+        stops the ball from moving,
+        and resets the hit count of the ball.
+
+        Parameter:
+            index (int): The player's identification number.
+        """
+        self._gui.score(index, self._ball_id)
+        self._gui.stop_movement()
+        self._hit_count = 0
 
     def move_ball(self):
-        if self.canvas.coords(self.ball_id)[2] > Gui.CANVAS_WIDTH:
+        """Handle movement of ball across canvas and collision."""
+        if self._canvas.coords(self._ball_id)[2] > Gui.CANVAS_WIDTH:
+            #  If the ball hits the right boundary.
             self.score(Gui.PLAYER1_ID)
-        if self.canvas.coords(self.ball_id)[0] < 0:
+        if self._canvas.coords(self._ball_id)[0] < 0:
+            # If the ball hits the left boundary.
             self.score(Gui.PLAYER2_ID)
 
-        if (self.canvas.coords(self.ball_id)[3] > 600 or
-                self.canvas.coords(self.ball_id)[1] < 0):
-            self.vel_y = -self.vel_y
+        if (self._canvas.coords(self._ball_id)[3] > 600 or
+                self._canvas.coords(self._ball_id)[1] < 0):
+            self._vel_y = -self._vel_y
             self.collision()
-        for paddle in self.paddles:
-            x1, y1, x2, y2 = self.canvas.coords(paddle.paddle_id)
-            if self.canvas.find_overlapping(x1, y1, x2, y2):
-                if len(self.canvas.find_overlapping(x1, y1, x2, y2)) >= 2:
-                    self.vel_X = -self.vel_X
+        for paddle in self._paddles:
+            x1, y1, x2, y2 = self._canvas.coords(paddle.get_paddle_id())
+            if self._canvas.find_overlapping(x1, y1, x2, y2):
+                if len(self._canvas.find_overlapping(x1, y1, x2, y2)) >= 2:
+                    self._vel_x = -self._vel_x
 
-        self.canvas.move(self.ball_id, self.vel_X * self.hit_count, self.vel_y)
+        self._canvas.move(self._ball_id,
+                          self._vel_x * self._hit_count,
+                          #  x velocity increases everytime hit count goes up.
+                          self._vel_y)
 
 
 Gui()
